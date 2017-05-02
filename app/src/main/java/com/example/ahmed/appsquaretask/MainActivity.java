@@ -2,10 +2,12 @@ package com.example.ahmed.appsquaretask;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -35,11 +37,15 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     private String paginationURL,completeURL;
     private int pageNumber;
     private int currentVisibleItemCount,currentScrollState;
+    DBAdapter db;
+    RelativeLayout MainActivity_relative;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MainActivity_relative=(RelativeLayout)findViewById(R.id.activity_main);
+        db= new DBAdapter(this);
         pageNumber=1;
       //  paginationURL="?page="+pageNumber+"&per_page=10";
 
@@ -59,12 +65,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                         String repoName=jsonObject.getString("name");
                         String description=jsonObject.getString("description");
 
+                        String fork=jsonObject.getString("fork");
+                        if (fork.equals("false")){
+                            MainActivity_relative.setBackgroundColor(Color.GREEN);
+                        }else if(fork.equals("true")){
+                            MainActivity_relative.setBackgroundColor(Color.WHITE);
+                        }
                         JSONObject sub_jsonobObject=jsonObject.getJSONObject("owner");
                         String ownerUserName=sub_jsonobObject.getString("login");
 
                         DataModel data_moModel=new DataModel(repoName,description,ownerUserName);
                         dataModels.add(data_moModel);
                         adapter.notifyDataSetChanged();
+
 
 
 
@@ -122,6 +135,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                             //Toast.makeText(MainActivity.this, jsonObject.getString("name"), Toast.LENGTH_SHORT).show();
                             String repoName=jsonObject.getString("name");
                             String description=jsonObject.getString("description");
+                            String fork=jsonObject.getString("fork");
+                            if (fork.equals("false")){
+                                MainActivity_relative.setBackgroundColor(Color.GREEN);
+                            }else if(fork.equals("true")){
+                                MainActivity_relative.setBackgroundColor(Color.WHITE);
+                            }
 
                             JSONObject sub_jsonobObject=jsonObject.getJSONObject("owner");
                             String ownerUserName=sub_jsonobObject.getString("login");
@@ -129,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                             DataModel data_moModel=new DataModel(repoName,description,ownerUserName);
                             dataModels.add(data_moModel);
                             adapter.notifyDataSetChanged();
-
 
 
                         }

@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
 public class DBAdapter {
 
     static final String KEY_ROWID = "_id";
@@ -18,13 +19,13 @@ public class DBAdapter {
     static final String KEY_REPO_DESCRIPTION = "description";
     static final String KEY_OWNER_USER_NAME= "ownerUserName";
     static final String TAG = "DBAdapter";
-    static final String DATABASE_NAME = "MyDB";
+    static final String DATABASE_NAME = "DBrepository";
     static final String DATABASE_TABLE = "RepoInformation";
     static final int DATABASE_VERSION = 1;
 
     static final String DATABASE_CREATE =
-    "create table contacts (_id integer primary key autoincrement, "
-            + "repoName text not null, description text not null , ownerUserName text not null);";
+    " create table RepoInformation (_id integer primary key autoincrement , "
+            + " repoName text not null, description text not null , ownerUserName text not null );";
 
 
     final Context context;
@@ -57,7 +58,7 @@ public class DBAdapter {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading database from version " + oldVersion +"o"
             +newVersion +",which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS contacts");
+            db.execSQL(" DROP TABLE IF EXISTS RepoInformation ");
             onCreate(db);
         }
     }
@@ -83,8 +84,13 @@ public class DBAdapter {
     }
 
     //---deletes a particular repo---
-    public boolean deleteContact(long rowId) {
+    public boolean deleterepo(long rowId) {
         return db.delete(DATABASE_TABLE, KEY_ROWID + "="+rowId, null)>0;
+    }
+
+    //---deletes a particular repo---
+    public boolean deleteAllRepos() {
+        return db.delete(DATABASE_TABLE ,null,null)>0;
     }
 
     //---retrieves all the repos---
