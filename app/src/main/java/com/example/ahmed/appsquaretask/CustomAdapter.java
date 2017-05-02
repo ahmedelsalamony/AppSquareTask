@@ -10,12 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 
 /**
  * Created by ahmed on 4/25/2017.
@@ -86,7 +89,19 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
     @Override
     public void onClick(View view)
     {
-        int position = (Integer) view.getTag();
-        Object object = getItem(position);
+    /*    int position = (Integer) view.getTag();
+        Object object = getItem(position);*/
     }
+
+    public void add(DataModel dataModel){
+        dataSet.add(dataModel);
+        notifyDataSetChanged();
+    }
+
+    public void clear(){
+        dataSet.clear();
+        notifyDataSetChanged();
+    }
+
+
 }

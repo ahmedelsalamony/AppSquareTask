@@ -9,6 +9,7 @@ public class DataModel {
     private String repoName;
     private String description;
     private String ownerUserName;
+    private String fork;
 
     public DataModel(String repoName,String description,String ownerUserName){
         this.repoName=repoName;
@@ -38,5 +39,13 @@ public class DataModel {
 
     public void setOwnerUserName(String ownerUserName) {
         this.ownerUserName = ownerUserName;
+    }
+
+    public String getFork() {
+        return fork;
+    }
+
+    public void setFork(String fork) {
+        this.fork = fork;
     }
 }

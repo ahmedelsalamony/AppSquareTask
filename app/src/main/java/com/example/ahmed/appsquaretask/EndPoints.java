@@ -7,4 +7,5 @@ package com.example.ahmed.appsquaretask;
 public class EndPoints {
     public static final String URL_REPO = "https://api.github.com/users/square/repos";
 
+
 }
