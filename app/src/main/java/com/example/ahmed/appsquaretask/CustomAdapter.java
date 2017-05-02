@@ -1,6 +1,7 @@
 package com.example.ahmed.appsquaretask;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -24,7 +25,7 @@ import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
  * Created by ahmed on 4/25/2017.
  */
 
-public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnClickListener {
+public class CustomAdapter extends ArrayAdapter<DataModel>  {
 
 
     private ArrayList<DataModel> dataSet;
@@ -74,24 +75,19 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         txtRepoName.setText(dataModel.getRepoName());
         txtDescription.setText(dataModel.getDescription());
         txtOwnerUserName.setText(dataModel.getOwnerUserName());
+        if (dataModel.getFork().equals("true")){
+            linearContainer.setBackgroundColor(Color.WHITE);
+        }else if (dataModel.getFork().equals("false")){
+            linearContainer.setBackgroundColor(Color.GREEN);
+        }
 
-        linearContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, "html"+position, Toast.LENGTH_SHORT).show();
-            }
-        });
+
 
         // Return the completed view to render on screen
         return convertView;
     }
 
-    @Override
-    public void onClick(View view)
-    {
-    /*    int position = (Integer) view.getTag();
-        Object object = getItem(position);*/
-    }
+
 
     public void add(DataModel dataModel){
         dataSet.add(dataModel);

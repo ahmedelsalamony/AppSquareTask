@@ -1,11 +1,18 @@
 package com.example.ahmed.appsquaretask;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -25,10 +32,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static android.R.id.list;
-import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 
-public class MainActivity extends AppCompatActivity implements AbsListView.OnScrollListener {
+public class MainActivity extends AppCompatActivity implements AbsListView.OnScrollListener{
 
     ArrayList<DataModel> dataModels;
     ListView listView;
@@ -39,15 +44,23 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     private int currentVisibleItemCount,currentScrollState;
     DBAdapter db;
     RelativeLayout MainActivity_relative;
+    Button btnRepo,btnOwner;
+    DataModel data_moModel;
+    private SwipeRefreshLayout swipeContainer;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MainActivity_relative=(RelativeLayout)findViewById(R.id.activity_main);
-        db= new DBAdapter(this);
-        pageNumber=1;
-      //  paginationURL="?page="+pageNumber+"&per_page=10";
+        MainActivity_relative = (RelativeLayout) findViewById(R.id.activity_main);
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+
+
+        db = new DBAdapter(this);
+        pageNumber = 1;
+        //  paginationURL="?page="+pageNumber+"&per_page=10";
 
 
         //completeURL=EndPoints.URL_REPO+paginationURL;
@@ -56,40 +69,34 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         JsonArrayRequest strReq = new JsonArrayRequest(EndPoints.URL_REPO+"?page="+pageNumber+"&per_page=10", new Response.Listener<JSONArray>() {
 
             @Override
-            public void onResponse(JSONArray jsonArray)
-            {
-                for(int i = 0; i < jsonArray.length(); i++) {
+            public void onResponse(JSONArray jsonArray) {
+                for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         //Toast.makeText(MainActivity.this, jsonObject.getString("name"), Toast.LENGTH_SHORT).show();
-                        String repoName=jsonObject.getString("name");
-                        String description=jsonObject.getString("description");
+                        String repoName = jsonObject.getString("name");
+                        String description = jsonObject.getString("description");
+                        String fork = jsonObject.getString("fork");
+                        String repoHTML=jsonObject.getString("html_url");
 
-                        String fork=jsonObject.getString("fork");
-                        if (fork.equals("false")){
-                            MainActivity_relative.setBackgroundColor(Color.GREEN);
-                        }else if(fork.equals("true")){
-                            MainActivity_relative.setBackgroundColor(Color.WHITE);
-                        }
-                        JSONObject sub_jsonobObject=jsonObject.getJSONObject("owner");
-                        String ownerUserName=sub_jsonobObject.getString("login");
 
-                        DataModel data_moModel=new DataModel(repoName,description,ownerUserName);
+                        JSONObject sub_jsonobObject = jsonObject.getJSONObject("owner");
+                        String ownerUserName = sub_jsonobObject.getString("login");
+                        String ownerHTML=sub_jsonobObject.getString("html_url");
+
+
+                        data_moModel= new DataModel(repoName, description, ownerUserName, fork,repoHTML,ownerHTML);
                         dataModels.add(data_moModel);
                         adapter.notifyDataSetChanged();
 
 
-
-
-                    }
-                    catch(JSONException e) {
-                      e.getMessage();
+                    } catch (JSONException e) {
+                        e.getMessage();
                     }
                 }
 
             }
-        }, new Response.ErrorListener()
-        {
+        }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -101,11 +108,103 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
 
         listView = (ListView) findViewById(R.id.activity_main_listView);
         dataModels = new ArrayList<>();
-        adapter = new CustomAdapter(dataModels,this);
+        adapter = new CustomAdapter(dataModels, this);
         listView.setAdapter(adapter);
         listView.setOnScrollListener(this);
+        listView.setLongClickable(true);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                           int pos, long id) {
+                // TODO Auto-generated method stub
+                Dialog d=new Dialog(MainActivity.this);
+                d.setContentView(R.layout.custom_dialog);
+                d.setTitle("choose one ");
+                btnRepo=(Button)d.findViewById(R.id.custom_dialog_btnRepo);
+                btnOwner=(Button)d.findViewById(R.id.custom_dialog_btnOwner);
+                d.show();
+                btnRepo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //Toast.makeText(MainActivity.this, data_moModel.getRepoHTMLURL(), Toast.LENGTH_SHORT).show();
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data_moModel.getRepoHTMLURL()));
+                        startActivity(browserIntent);
+                    }
+                });
 
+                btnOwner.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data_moModel.getOwnerHTMLURL()));
+                        startActivity(browserIntent);
+                    }
+                });
+
+                return true;
+            }
+        });
+
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                queue = Volley.newRequestQueue(MainActivity.this);
+                JsonArrayRequest strReq = new JsonArrayRequest(EndPoints.URL_REPO+"?page="+pageNumber+"&per_page=10", new Response.Listener<JSONArray>() {
+
+                    @Override
+                    public void onResponse(JSONArray jsonArray) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            try {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                //Toast.makeText(MainActivity.this, jsonObject.getString("name"), Toast.LENGTH_SHORT).show();
+                                String repoName = jsonObject.getString("name");
+                                String description = jsonObject.getString("description");
+                                String fork = jsonObject.getString("fork");
+                                String repoHTML=jsonObject.getString("html_url");
+
+
+                                JSONObject sub_jsonobObject = jsonObject.getJSONObject("owner");
+                                String ownerUserName = sub_jsonobObject.getString("login");
+                                String ownerHTML=sub_jsonobObject.getString("html_url");
+
+
+                                data_moModel= new DataModel(repoName, description, ownerUserName, fork,repoHTML,ownerHTML);
+                                dataModels.add(data_moModel);
+                                adapter.notifyDataSetChanged();
+
+
+                            } catch (JSONException e) {
+                                e.getMessage();
+                            }
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+                // Adding String request to request queue
+                queue.add(strReq);
+
+                // Now we call setRefreshing(false) to signal refresh has finished
+                swipeContainer.setRefreshing(false);
+
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
+
+
+
 
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
@@ -132,20 +231,17 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                     for(int i = 0; i < jsonArray.length(); i++) {
                         try {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            //Toast.makeText(MainActivity.this, jsonObject.getString("name"), Toast.LENGTH_SHORT).show();
                             String repoName=jsonObject.getString("name");
                             String description=jsonObject.getString("description");
                             String fork=jsonObject.getString("fork");
-                            if (fork.equals("false")){
-                                MainActivity_relative.setBackgroundColor(Color.GREEN);
-                            }else if(fork.equals("true")){
-                                MainActivity_relative.setBackgroundColor(Color.WHITE);
-                            }
-
+                            String repoHTML=jsonObject.getString("html_url");
                             JSONObject sub_jsonobObject=jsonObject.getJSONObject("owner");
                             String ownerUserName=sub_jsonobObject.getString("login");
 
-                            DataModel data_moModel=new DataModel(repoName,description,ownerUserName);
+                            String ownerHTML=sub_jsonobObject.getString("html_url");
+
+
+                           data_moModel = new DataModel(repoName, description, ownerUserName, fork,repoHTML,ownerHTML);
                             dataModels.add(data_moModel);
                             adapter.notifyDataSetChanged();
 
@@ -168,10 +264,13 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             // Adding String request to request queue
             queue.add(strReq);
 
-
         }
     }
-    }
+
+}
+
+
+
 
 
 

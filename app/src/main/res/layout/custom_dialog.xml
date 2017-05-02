@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    >
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Repository"
+        android:textAllCaps="false"
+        android:id="@+id/custom_dialog_btnRepo"
+        android:background="@drawable/buttonstyle1"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:layout_marginBottom="10dp"
+        android:drawableEnd="@drawable/ic_archive_black_24dp"
+        android:padding="10dp"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Owner"
+        android:textAllCaps="false"
+        android:id="@+id/custom_dialog_btnOwner"
+        android:background="@drawable/buttonstyle2"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:padding="10dp"
+        android:drawableEnd="@drawable/ic_lock_outline_black_24dp"
+        />
+</LinearLayout>
