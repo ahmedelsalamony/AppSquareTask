@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
     private String paginationURL,completeURL;
     private int pageNumber;
     private int currentVisibleItemCount,currentScrollState;
-    DBAdapter db;
+
     RelativeLayout MainActivity_relative;
     Button btnRepo,btnOwner;
     DataModel data_moModel;
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
 
 
-        db = new DBAdapter(this);
+
         pageNumber = 1;
         //  paginationURL="?page="+pageNumber+"&per_page=10";
 
